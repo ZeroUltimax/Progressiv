@@ -1,7 +1,7 @@
 import { Emitter } from "Emitter";
 
 interface ProgressEvents {
-  progress: [current: number, total: number, message?: string];
+  progress: [current: number, total: number, ratio: number, message?: string];
 }
 
 interface ProgressOptions {
@@ -38,5 +38,18 @@ export class Progress extends Emitter<ProgressEvents> {
   public setTotal(value: number) {
     this.total = value;
     return this;
+  }
+
+  public getRatio() {
+    if (this.total === null || this.total === 0) {
+      return this.current ? 1 : 0;
+    }
+    if (this.current <= 0) {
+      return 0;
+    }
+    if (this.current >= this.total) {
+      return 1;
+    }
+    return this.current / this.total;
   }
 }
