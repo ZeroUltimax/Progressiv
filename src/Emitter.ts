@@ -7,6 +7,7 @@ export class Emitter<M extends EventMap = any> {
 
   public on<E extends keyof M>(event: E, cb: (...args: M[E]) => void) {
     this.eventsMap[event] = [...(this.eventsMap[event] || [])!, cb];
+    return this;
   }
 
   public off<E extends keyof M>(event: E, cb: (...args: M[E]) => void) {
@@ -16,9 +17,11 @@ export class Emitter<M extends EventMap = any> {
     } else {
       delete this.eventsMap[event];
     }
+    return this;
   }
 
   public emit<E extends keyof M>(event: E, ...args: M[E]) {
     this.eventsMap[event]?.forEach((cb) => cb(...args));
+    return this;
   }
 }

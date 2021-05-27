@@ -1,7 +1,12 @@
 import { Emitter } from "Emitter";
 
 interface ProgressEvents {
-  progress: [current: number, total: number, ratio: number, message?: string];
+  progress: [
+    current: number,
+    total: number,
+    ratio: number,
+    message: string | null
+  ];
 }
 
 interface ProgressOptions {
@@ -19,6 +24,7 @@ export class Progress extends Emitter<ProgressEvents> {
     this.total = total ?? null;
   }
 
+  //#region properties
   public getCurrent(): number {
     return this.current;
   }
@@ -30,7 +36,7 @@ export class Progress extends Emitter<ProgressEvents> {
 
   public getTotal(): number {
     if (this.total == null) {
-      throw new Error("total is not set.");
+      throw new Error("'total' is not set.");
     }
     return this.total;
   }
@@ -52,4 +58,38 @@ export class Progress extends Emitter<ProgressEvents> {
     }
     return this.current / this.total;
   }
+  //#endregion
+
+  //#region updates
+  public update(current: number, msg?: string) {
+    if (current < this.current) {
+      throw new Error("'current' cannot be reduced by an update.");
+    }
+    this.current = current;
+    const total = this.getTotal();
+    if (total < this.current) {
+      this.total = current;
+    }
+    this.emitProgress(msg);
+  }
+
+  public tick(msg?: string) {
+    this.update(this.current + 1, msg);
+  }
+
+  public end(msg?: string) {
+    const maxCurrent = Math.max(this.getTotal(), this.current);
+    this.update(maxCurrent, msg);
+  }
+
+  private emitProgress(msg: string | undefined) {
+    this.emit(
+      "progress",
+      this.getCurrent(),
+      this.getTotal(),
+      this.getRatio(),
+      msg ?? null
+    );
+  }
+  //#endregion
 }
