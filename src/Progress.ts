@@ -15,81 +15,73 @@ interface ProgressOptions {
 }
 
 export class Progress extends Emitter<ProgressEvents> {
-  private current: number;
-  private total: number | null;
+  private _total: number | null;
 
   constructor({ current, total }: ProgressOptions = {}) {
     super();
-    this.current = current ?? 0;
-    this.total = total ?? null;
+    this._current = current ?? 0;
+    this._total = total ?? null;
   }
 
   //#region properties
-  public getCurrent(): number {
-    return this.current;
+  private _current: number;
+  public get current(): number {
+    return this._current;
   }
 
-  public setCurrent(value: number) {
-    this.current = value;
-    return this;
+  public set current(value: number) {
+    this._current = value;
   }
 
-  public getTotal(): number {
-    if (this.total == null) {
+  public get total(): number {
+    if (this._total == null) {
       throw new Error("'total' is not set.");
     }
-    return this.total;
+    return this._total;
   }
 
-  public setTotal(value: number) {
-    this.total = value;
-    return this;
+  public set total(value: number) {
+    this._total = value;
   }
 
-  public getRatio() {
-    if (this.total === null || this.total === 0) {
-      return this.current ? 1 : 0;
+  public get ratio(): number {
+    if (this._total === null || this._total === 0) {
+      return this._current ? 1 : 0;
     }
-    if (this.current <= 0) {
+    if (this._current <= 0) {
       return 0;
     }
-    if (this.current >= this.total) {
+    if (this._current >= this._total) {
       return 1;
     }
-    return this.current / this.total;
+    return this._current / this._total;
   }
   //#endregion
 
   //#region updates
   public update(current: number, msg?: string) {
-    if (current < this.current) {
+    if (current < this._current) {
       throw new Error("'current' cannot be reduced by an update.");
     }
     this.current = current;
-    const total = this.getTotal();
-    if (total < this.current) {
-      this.total = current;
+
+    if (this.total < this.current) {
+      this.total = this.current;
     }
     this.emitProgress(msg);
   }
 
   public tick(msg?: string) {
-    this.update(this.current + 1, msg);
+    this.update(this._current + 1, msg);
   }
 
   public end(msg?: string) {
-    const maxCurrent = Math.max(this.getTotal(), this.current);
+    const maxCurrent = Math.max(this.total, this.current);
     this.update(maxCurrent, msg);
   }
 
   private emitProgress(msg: string | undefined) {
-    this.emit(
-      "progress",
-      this.getCurrent(),
-      this.getTotal(),
-      this.getRatio(),
-      msg ?? null
-    );
+    this.emit("progress", this.current, this.total, this.ratio, msg ?? null);
   }
   //#endregion
 }

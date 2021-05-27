@@ -6,26 +6,27 @@ describe("Progress", () => {
       const expected = 123;
       const progress = new Progress({ total: expected });
 
-      const actual = progress.getTotal();
+      const actual = progress.total;
 
       expect(actual).toEqual(expected);
     });
     it("Sets total", () => {
       const expected = 123;
-      const progress = new Progress().setTotal(expected);
+      const progress = new Progress();
+      progress.total = expected;
 
-      const actual = progress.getTotal();
+      const actual = progress.total;
       expect(actual).toEqual(expected);
     });
     it("Throws on unset total", () => {
       const progress = new Progress();
-      expect(() => progress.getTotal()).toThrowError();
+      expect(() => progress.total).toThrowError();
     });
     it("Defaults current to 0", () => {
       const expected = 0;
       const progress = new Progress();
 
-      const actual = progress.getCurrent();
+      const actual = progress.current;
 
       expect(actual).toEqual(expected);
     });
@@ -33,22 +34,24 @@ describe("Progress", () => {
       const expected = 123;
       const progress = new Progress({ current: expected });
 
-      const actual = progress.getCurrent();
+      const actual = progress.current;
 
       expect(actual).toEqual(expected);
     });
     it("Sets current", () => {
       const expected = 123;
-      const progress = new Progress().setCurrent(expected);
+      const progress = new Progress();
+      progress.current = expected;
 
-      const actual = progress.getCurrent();
+      const actual = progress.current;
       expect(actual).toEqual(expected);
     });
     it("doesn't emit", () => {
       const progress = new Progress();
       let emitted = false;
       progress.on("progress", () => (emitted = true));
-      progress.setCurrent(1).setTotal(2);
+      progress.current = 1;
+      progress.total = 2;
 
       expect(emitted).toBeFalsy();
     });
@@ -59,7 +62,7 @@ describe("Progress", () => {
       const total = 100;
 
       const expected = current / total;
-      const actual = new Progress({ current, total }).getRatio();
+      const actual = new Progress({ current, total }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -67,7 +70,7 @@ describe("Progress", () => {
       const current = 0;
 
       const expected = 0;
-      const actual = new Progress({ current }).getRatio();
+      const actual = new Progress({ current }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -75,7 +78,7 @@ describe("Progress", () => {
       const current = 123;
 
       const expected = 1;
-      const actual = new Progress({ current }).getRatio();
+      const actual = new Progress({ current }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -84,7 +87,7 @@ describe("Progress", () => {
       const total = 0;
 
       const expected = 0;
-      const actual = new Progress({ current, total }).getRatio();
+      const actual = new Progress({ current, total }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -93,7 +96,7 @@ describe("Progress", () => {
       const total = 0;
 
       const expected = 1;
-      const actual = new Progress({ current, total }).getRatio();
+      const actual = new Progress({ current, total }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -102,7 +105,7 @@ describe("Progress", () => {
       const total = 100;
 
       const expected = 0;
-      const actual = new Progress({ current, total }).getRatio();
+      const actual = new Progress({ current, total }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -111,7 +114,7 @@ describe("Progress", () => {
       const total = 100;
 
       const expected = 1;
-      const actual = new Progress({ current, total }).getRatio();
+      const actual = new Progress({ current, total }).ratio;
 
       expect(actual).toEqual(expected);
     });
@@ -125,7 +128,7 @@ describe("Progress", () => {
       progress.update(updateCurrent);
 
       const expected = updateCurrent;
-      const actual = progress.getCurrent();
+      const actual = progress.current;
 
       expect(actual).toEqual(expected);
     });
@@ -165,8 +168,8 @@ describe("Progress", () => {
       const expectedCurrent = updateCurrent;
       const expectedTotal = updateCurrent;
 
-      const actualCurrent = progress.getCurrent();
-      const actualTotal = progress.getTotal();
+      const actualCurrent = progress.current;
+      const actualTotal = progress.total;
 
       expect(expectedCurrent).toEqual(actualCurrent);
       expect(expectedTotal).toEqual(actualTotal);
@@ -200,7 +203,7 @@ describe("Progress", () => {
       progress.tick();
 
       const expected = current + 1;
-      const actual = progress.getCurrent();
+      const actual = progress.current;
 
       expect(actual).toEqual(expected);
     });
@@ -238,8 +241,8 @@ describe("Progress", () => {
       const expectedCurrent = current + 1;
       const expectedTotal = total + 1;
 
-      const actualCurrent = progress.getCurrent();
-      const actualTotal = progress.getTotal();
+      const actualCurrent = progress.current;
+      const actualTotal = progress.total;
 
       expect(expectedCurrent).toEqual(actualCurrent);
       expect(expectedTotal).toEqual(actualTotal);
@@ -262,7 +265,7 @@ describe("Progress", () => {
       progress.end();
 
       const expected = total;
-      const actual = progress.getCurrent();
+      const actual = progress.current;
 
       expect(actual).toEqual(expected);
     });
@@ -276,8 +279,8 @@ describe("Progress", () => {
       const expectedCurrent = current;
       const expectedTotal = current;
 
-      const actualCurrent = progress.getCurrent();
-      const actualTotal = progress.getCurrent();
+      const actualCurrent = progress.current;
+      const actualTotal = progress.current;
 
       expect(actualCurrent).toEqual(expectedCurrent);
       expect(actualTotal).toEqual(expectedTotal);
