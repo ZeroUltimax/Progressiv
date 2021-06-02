@@ -1,30 +1,17 @@
 import { Emitter } from "Emitter";
+import { IProgress, IProgressEvents, IProgressOptions } from "IProgress";
 
-interface ProgressEvents {
-  progress: [
-    current: number,
-    total: number,
-    ratio: number,
-    message: string | null
-  ];
-}
-
-interface ProgressOptions {
-  current?: number;
-  total?: number;
-}
-
-export class Progress extends Emitter<ProgressEvents> {
+export class Progress extends Emitter<IProgressEvents> implements IProgress {
+  private _current: number;
   private _total: number | null;
 
-  constructor({ current, total }: ProgressOptions = {}) {
+  constructor({ current, total }: IProgressOptions = {}) {
     super();
     this._current = current ?? 0;
     this._total = total ?? null;
   }
 
   //#region properties
-  private _current: number;
   public get current(): number {
     return this._current;
   }
@@ -69,15 +56,18 @@ export class Progress extends Emitter<ProgressEvents> {
       this.total = this.current;
     }
     this.emitProgress(msg);
+    return this;
   }
 
   public tick(msg?: string) {
     this.update(this._current + 1, msg);
+    return this;
   }
 
   public end(msg?: string) {
     const maxCurrent = Math.max(this.total, this.current);
     this.update(maxCurrent, msg);
+    return this;
   }
 
   private emitProgress(msg: string | undefined) {
