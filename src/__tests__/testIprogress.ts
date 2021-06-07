@@ -139,7 +139,7 @@ export function testIprogress(
       const total = 100;
 
       let actualCurrent: number | null = null;
-      let actualMessage: string | null = null;
+      let actualMessage: string | undefined | null = null;
       const progress = factory({ current, total }).on(
         "progress",
         (current, total, ratio, msg) => {
@@ -214,7 +214,7 @@ export function testIprogress(
       const total = 100;
 
       let actualCurrent: number | null = null;
-      let actualMessage: string | null = null;
+      let actualMessage: string | undefined | null = null;
       const progress = factory({ current, total }).on(
         "progress",
         (current, total, ratio, msg) => {
@@ -292,7 +292,7 @@ export function testIprogress(
       const total = 100;
 
       let actualCurrent: number | null = null;
-      let actualMessage: string | null = null;
+      let actualMessage: string | undefined | null = null;
       const progress = factory({ current, total }).on(
         "progress",
         (current, total, ratio, msg) => {

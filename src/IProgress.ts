@@ -5,9 +5,11 @@ export interface IProgressEvents {
     current: number,
     total: number,
     ratio: number,
-    message: string | null
+    message: string | undefined
   ];
 }
+
+export type IProgressCB = (...args: IProgressEvents["progress"]) => void;
 
 export interface IProgressOptions {
   current?: number;

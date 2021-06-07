@@ -71,7 +71,7 @@ export class Progress extends Emitter<IProgressEvents> implements IProgress {
   }
 
   private emitProgress(msg: string | undefined) {
-    this.emit("progress", this.current, this.total, this.ratio, msg ?? null);
+    this.emit("progress", this.current, this.total, this.ratio, msg);
   }
   //#endregion
 }
