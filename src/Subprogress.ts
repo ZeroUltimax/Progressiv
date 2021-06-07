@@ -2,9 +2,15 @@ import { IProgress, IProgressCB, IProgressOptions } from "IProgress";
 import { Progress } from "Progress";
 import { ProgressDecorator } from "ProgressDecorator";
 
-interface Suboptions extends IProgressOptions {
+interface SubSizeOptions extends IProgressOptions {
   size?: number;
 }
+
+interface SubToOptions extends IProgressOptions {
+  to?: number;
+}
+
+type SubOptions = SubSizeOptions & SubToOptions;
 
 interface Subinfo {
   subprogress: Subprogress;
@@ -23,7 +29,25 @@ export class Subprogress extends ProgressDecorator implements IProgress {
     super(new Progress(o));
   }
 
-  public sub({ current, total, size = 1 }: Suboptions = {}): Subprogress {
+  public sub(options: SubSizeOptions): Subprogress;
+  public sub(options: SubToOptions): Subprogress;
+  public sub({ current, total, size, to }: SubOptions = {}): Subprogress {
+    if (to != null) {
+      if (size != null) {
+        throw new Error(`"size" and "to" optiosn cannot be both specified`);
+      } else {
+        const totalWithSub = this.totalWithSub();
+        size = to - totalWithSub;
+        if (size < 0) {
+          throw new Error(
+            `Cannot sub to a regressive total. "to" was ${to}, but expected total is already ${totalWithSub}.`
+          );
+        }
+      }
+    } else if (size == null) {
+      size = 1;
+    }
+
     const subprogress = new Subprogress({ current, total });
     const tally = 0;
     const id = this.subId++;
@@ -85,9 +109,13 @@ export class Subprogress extends ProgressDecorator implements IProgress {
     }
   }
 
-  private updateTotal() {
+  private totalWithSub() {
     const remainingSub = this.totalSub - this.currentSub;
-    const totalWithSub = this.current + remainingSub;
+    return this.current + remainingSub;
+  }
+
+  private updateTotal() {
+    const totalWithSub = this.totalWithSub();
     if (totalWithSub > this.total) {
       this.total = totalWithSub;
     }

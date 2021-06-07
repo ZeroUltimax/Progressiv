@@ -65,6 +65,62 @@ describe("SubProgress", () => {
       const actual = progress.current;
       expect(actual).toEqual(expected);
     });
+
+    it("throws if total not set", () => {
+      const progress = new Subprogress();
+      const thrower = () => progress.sub({ total: 10 });
+
+      const expectedError = /total/;
+      expect(thrower).toThrow(expectedError);
+    });
+
+    it("splits to achieve specified current", () => {
+      const to = 8;
+      const progress = new Subprogress({ current: 5, total: 10 });
+      const subprogress = progress.sub({ total: 10, to });
+      subprogress.end();
+
+      const actual = progress.current;
+      const expected = to;
+
+      expect(actual).toEqual(expected);
+    });
+
+    it("splits to achieve specified current with in progress subs", () => {
+      const sub1Size = 5;
+      const to = 8;
+      const progress = new Subprogress({ current: 0, total: 10 });
+      const sub1 = progress.sub({ total: 1, size: sub1Size });
+      const sub2 = progress.sub({ total: 10, to });
+      sub1.end();
+      sub2.end();
+
+      const actual = progress.current;
+      const expected = to;
+
+      expect(actual).toEqual(expected);
+    });
+
+    it("throws if splits to achieve an actual regressive total", () => {
+      const current = 5;
+      const to = current - 1;
+      const progress = new Subprogress({ current: 5, total: 10 });
+      const thrower = () => progress.sub({ total: 10, to });
+
+      const expectedError = /total/;
+      expect(thrower).toThrow(expectedError);
+    });
+    it("throws if splits to achieve an upcoming regressive total", () => {
+      const sub1Size = 5;
+      const to = sub1Size - 1;
+      const progress = new Subprogress({ current: 5, total: 10 });
+
+      progress.sub({ total: 1, size: sub1Size });
+      const thrower = () => progress.sub({ total: 10, to });
+
+      const expectedError = /total/;
+      expect(thrower).toThrow(expectedError);
+    });
   });
   it("divides internal ticks", () => {
     const total = 10;
